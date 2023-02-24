@@ -44,7 +44,6 @@ const App = () => {
       updateCache(client.cache, { query: ALL_BOOKS }, addedBook)
     }
   })
-
   const user = useQuery(USER, {
     skip: !token,
   })

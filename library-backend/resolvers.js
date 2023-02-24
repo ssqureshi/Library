@@ -6,6 +6,15 @@ const _ = require("lodash")
 const User = require('./models/user')
 const { PubSub } = require('graphql-subscriptions')
 const pubsub = new PubSub()
+const DataLoader = require('dataloader')
+
+const countLoader = new DataLoader(names => {
+  return Book.find({}).populate('author', {name: 1 }).then(b => {
+    const count =  _.countBy(b, "author.name")
+    return names.map(name => count[name])
+  }) 
+  
+})
 
 let books
 const resolvers = {
@@ -35,9 +44,9 @@ const resolvers = {
     }
   },
   Author: {
-    bookCount: (root) => {
-      const count =  _.countBy(books, "author.name")
-      return count[root.name]
+    bookCount: async(root) => {
+      return await countLoader.load(root.name)
+      
     }
   },
   Mutation: {
